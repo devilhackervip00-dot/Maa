@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LSR Predictor - Secure Login</title>
+  <title>LSR Predictor - Secure Access</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      background: linear-gradient(135deg, #0d0d2b 0%, #1a1a4e 100%);
+      background: linear-gradient(145deg, #1e1e5f 0%, #0b0b29 100%);
       min-height: 100vh;
       overflow: hidden;
       color: #fff;
@@ -31,24 +31,24 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
-    /* Splash Screen Styles */
+    /* Splash Screen */
     .splash-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #0d0d2b;
+      background: linear-gradient(145deg, #0b0b29 0%, #1e1e5f 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 2000;
       opacity: 1;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.8s ease-out;
     }
 
     .splash-screen.hidden {
@@ -56,29 +56,32 @@
       pointer-events: none;
     }
 
-    .splash-logo {
-      font-size: 3rem;
+    .splash-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .splash-text {
+      font-size: 3.5rem;
       font-weight: 700;
-      color: #00eaff;
-      text-shadow: 0 0 20px rgba(0, 234, 255, 0.8);
-      animation: pulse 2s ease-in-out infinite;
-      margin-bottom: 1rem;
+      color: #00d4ff;
+      text-shadow: 0 0 15px rgba(0, 212, 255, 0.9);
+      z-index: 1;
     }
 
     .splash-subtitle {
-      font-size: 1.2rem;
-      color: rgba(255, 255, 255, 0.8);
-      animation: fadeIn 2s ease-in;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.9);
+      animation: slideUp 1.5s ease-out 0.5s forwards;
+      opacity: 0;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); text-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
-      50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(0, 234, 255, 1); }
-      100% { transform: scale(1); text-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -88,9 +91,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 2rem;
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.8s ease-in;
     }
 
     .container.visible {
@@ -98,98 +101,128 @@
     }
 
     .title {
-      font-size: 2.5rem;
+      font-size: 2.8rem;
       font-weight: 700;
-      color: #00eaff;
-      text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
+      color: #00d4ff;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
       margin-bottom: 1.5rem;
       animation: glow 2s ease-in-out infinite alternate;
     }
 
     @keyframes glow {
-      from { text-shadow: 0 0 10px rgba(0, 234, 255, 0.8); }
-      to { text-shadow: 0 0 20px rgba(0, 234, 255, 1); }
+      from { text-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
+      to { text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); }
     }
 
     .login-box {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 2.5rem;
       width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 30px rgba(0, 234, 255, 0.3);
+      max-width: 420px;
+      box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
       text-align: center;
+      animation: fadeInBox 1s ease-out;
+    }
+
+    @keyframes fadeInBox {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 600;
       color: #fff;
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      position: relative;
       margin-bottom: 1.5rem;
     }
 
     input {
       width: 100%;
-      padding: 12px;
+      padding: 14px 16px 14px 40px;
       font-size: 1rem;
       border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
       color: #fff;
-      margin-bottom: 1.2rem;
       transition: all 0.3s ease;
     }
 
     input:focus {
       outline: none;
-      box-shadow: 0 0 10px #00eaff;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
     }
 
     input::placeholder {
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.2rem;
     }
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       font-size: 1rem;
       font-weight: 600;
-      background: #00eaff;
-      color: #0d0d2b;
+      background: linear-gradient(90deg, #00d4ff, #00aaff);
+      color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+      box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+      margin-bottom: 1rem;
     }
 
     button:hover {
-      background: #00c4d4;
-      box-shadow: 0 0 15px rgba(0, 234, 255, 0.8);
+      background: linear-gradient(90deg, #00aaff, #0088ff);
+      box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
+      transform: translateY(-2px);
     }
 
     button.secondary {
       background: transparent;
-      border: 2px solid #00eaff;
-      color: #00eaff;
+      border: 2px solid #00d4ff;
+      color: #00d4ff;
       box-shadow: none;
     }
 
     button.secondary:hover {
-      background: rgba(0, 234, 255, 0.2);
+      background: rgba(0, 212, 255, 0.1);
+      transform: translateY(-2px);
     }
 
     .error {
       color: #ff4d4d;
       font-size: 0.9rem;
       margin-top: 1rem;
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
     }
 
     .loading {
-      color: #00eaff;
+      color: #00d4ff;
       font-size: 0.9rem;
       margin-top: 1rem;
       display: none;
@@ -201,7 +234,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -217,15 +250,15 @@
     }
 
     .modal-content {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 2px solid #00eaff;
-      border-radius: 12px;
-      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 2rem;
       max-width: 90%;
-      width: 350px;
+      width: 380px;
       text-align: center;
-      transform: scale(0.9);
+      transform: scale(0.8);
       transition: transform 0.3s ease;
     }
 
@@ -235,19 +268,25 @@
 
     .modal-content h3 {
       font-size: 1.5rem;
-      color: #00eaff;
+      color: #00d4ff;
       margin-bottom: 1rem;
     }
 
     .modal-content p {
       font-size: 0.9rem;
       color: #fff;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
     }
 
     @media (max-width: 500px) {
-      .title, .splash-logo {
-        font-size: 1.8rem;
+      .splash-text {
+        font-size: 2.5rem;
+      }
+      .splash-subtitle {
+        font-size: 1rem;
+      }
+      .title {
+        font-size: 2rem;
       }
       .login-box {
         padding: 1.5rem;
@@ -266,21 +305,21 @@
   </style>
 </head>
 <body>
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-logo">Welcome to LSR World</div>
-    <div class="splash-subtitle">The Ultimate Predictor Experience</div>
+   <div class="splash-screen" id="splashScreen">
+    <canvas id="splashCanvas" class="splash-canvas"></canvas>
+    <div class="splash-text" id="typingTitle"></div>
+    <div class="splash-subtitle">Secure Access Portal</div>
   </div>
-
   <canvas id="particleCanvas" class="particle-bg"></canvas>
   <div class="container" id="mainContainer">
-    <div class="title">LSR Predictor V.4</div>
-    <div class="login-box">
-      <h1>Secure Access</h1>
-      <input type="text" id="accessKey" placeholder="Enter Access Key" onkeypress="handleKeyPress(event)" aria-label="Access Key Input" />
-      <button onclick="handleLogin()" aria-label="Login Button">Login</button>
-      <button class="secondary" onclick="getKey()" aria-label="Get Access Key">Get New Key</button>
-      <div class="loading" id="loading">Ver基本
-
+   <div class="login-box">
+     
+      <div class="input-group">
+        <input type="text" id="accessKey" placeholder="Enter Access Key" onkeypress="handleKeyPress(event)" aria-label="Access Key Input" />
+      </div>
+      <button onclick="handleLogin()" aria-label="Login Button">Access Now</button>
+      <button class="secondary" onclick="getKey()" aria-label="Get Access Key">Request New Key</button>
+      <div class="loading" id="loading">Verifying...</div>
       <div class="error" id="error"></div>
     </div>
   </div>
@@ -296,7 +335,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-    // Firebase config
+    // Firebase config (move to backend in production)
     const firebaseConfig = {
       apiKey: "AIzaSyDmQDemn4U_DS-X0natkfk7JHWcOzxupGo",
       authDomain: "maalsrworld.firebaseapp.com",
@@ -313,13 +352,24 @@
     const keyDuration = 24 * 60 * 60 * 1000; // 24 hours
     let isLoggingIn = false;
 
-    // Splash screen handling
+    // Device ID handling
+    function getDeviceId() {
+      let id = localStorage.getItem("device_id");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("device_id", id);
+        document.cookie = `device_id=${id}; max-age=31536000; path=/; SameSite=Strict`;
+      }
+      return id;
+    }
+
+    // Splash screen
     window.onload = function () {
       setTimeout(() => {
         document.getElementById('splashScreen').classList.add('hidden');
         document.getElementById('mainContainer').classList.add('visible');
         tryAutoLogin();
-      }, 3000); // Show splash for 3 seconds
+      }, 3500);
     };
 
     // Modal functions
@@ -337,6 +387,7 @@
       const storedKey = localStorage.getItem("access_key");
       const errorDiv = document.getElementById("error");
       const loadingDiv = document.getElementById("loading");
+      const deviceId = getDeviceId();
 
       if (!storedKey) return;
 
@@ -348,7 +399,7 @@
         if (!snap.exists()) {
           localStorage.removeItem("access_key");
           errorDiv.innerText = "Stored access key not found.";
-          showModal('Key Not Found', 'Your stored access key is invalid. Please get a new one.');
+          showModal('Key Not Found', 'Your stored access key is invalid. Please request a new one.');
           return;
         }
 
@@ -358,11 +409,17 @@
         if (data.expiry && now > data.expiry) {
           localStorage.removeItem("access_key");
           errorDiv.innerText = "Stored access key expired.";
-          showModal('Access Expired', 'Your stored access key has expired. Please get a new one.');
+          showModal('Access Expired', 'Your stored access key has expired. Please request a new one.');
           return;
         }
 
-        // Update expiry and last login
+        if (data.deviceId && data.deviceId !== deviceId) {
+          localStorage.removeItem("access_key");
+          errorDiv.innerText = "Key is registered to another device.";
+          showModal('Device Mismatch', 'This key is tied to another device. Please request a new key to reset the device lock.');
+          return;
+        }
+
         await update(ref(db, `accessKeys/${storedKey}`), {
           lastLogin: now,
           expiry: now + keyDuration
@@ -376,7 +433,7 @@
         loadingDiv.style.display = "none";
         localStorage.removeItem("access_key");
         errorDiv.innerText = `Auto-login failed: ${err.message}`;
-        showModal('Error', 'Failed to auto-login. Please try again or get a new key.');
+        showModal('Error', 'Failed to auto-login. Please try again or request a new key.');
       }
     }
 
@@ -387,6 +444,7 @@
       const key = document.getElementById("accessKey").value.trim();
       const errorDiv = document.getElementById("error");
       const loadingDiv = document.getElementById("loading");
+      const deviceId = getDeviceId();
 
       errorDiv.innerText = "";
       loadingDiv.style.display = "block";
@@ -404,7 +462,7 @@
 
         if (!snap.exists()) {
           errorDiv.innerText = "Access key not found.";
-          showModal('Key Not Found', 'The access key is invalid. Please get a new one.');
+          showModal('Key Not Found', 'The access key is invalid. Please request a new one.');
           isLoggingIn = false;
           return;
         }
@@ -414,13 +472,20 @@
 
         if (data.expiry && now > data.expiry) {
           errorDiv.innerText = "Access key expired.";
-          showModal('Key Expired', 'This access key has expired. Please get a new one.');
+          showModal('Key Expired', 'This access key has expired. Please request a new one.');
           isLoggingIn = false;
           return;
         }
 
-        // Update lastLogin and expiry
+        if (data.deviceId && data.deviceId !== deviceId) {
+          errorDiv.innerText = "Key is registered to another device.";
+          showModal('Device Mismatch', 'This key is tied to another device. Please request a new key to reset the device lock.');
+          isLoggingIn = false;
+          return;
+        }
+
         await update(ref(db, `accessKeys/${key}`), {
+          deviceId: data.deviceId || deviceId,
           lastLogin: now,
           expiry: now + keyDuration
         });
@@ -433,14 +498,14 @@
       } catch (err) {
         loadingDiv.style.display = "none";
         errorDiv.innerText = `Login failed: ${err.message}`;
-        showModal('Error', 'Login failed. Please try again or get a new key.');
+        showModal('Error', 'Login failed. Please try again or request a new key.');
       } finally {
         isLoggingIn = false;
       }
     };
 
     window.getKey = function () {
-      const message = encodeURIComponent("Hello, I need a new access key for LSR Predictor.");
+      const message = encodeURIComponent("Hello, I need a new access key for LSR Predictor due to device mismatch or expiry.");
       window.open(`https://t.me/Devil_Hacker_Vip?text=${message}`, '_blank');
     };
 
@@ -452,35 +517,36 @@
   </script>
 
   <script>
-    const canvas = document.getElementById("particleCanvas");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+    // Particle Background
+    const particleCanvas = document.getElementById("particleCanvas");
+    const particleCtx = particleCanvas.getContext("2d");
+    particleCanvas.height = window.innerHeight;
+    particleCanvas.width = window.innerWidth;
 
-    const particleCount = window.innerWidth < 500 ? 50 : 150;
+    const particleCount = window.innerWidth < 500 ? 60 : 200;
     const particles = [];
 
     class Particle {
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 1.5 - 0.75;
-        this.speedY = Math.random() * 1.5 - 0.75;
-        this.color = `rgba(0, 234, 255, ${Math.random() * 0.5 + 0.4})`;
+        this.x = Math.random() * particleCanvas.width;
+        this.y = Math.random() * particleCanvas.height;
+        this.size = Math.random() * 2.5 + 0.5;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+        this.color = `rgba(0, 212, 255, ${Math.random() * 0.4 + 0.3})`;
       }
       update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        if (this.size > 0.2) this.size -= 0.01;
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        if (this.size > 0.2) this.size -= 0.005;
+        if (this.x < 0 || this.x > particleCanvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > particleCanvas.height) this.speedY *= -1;
       }
       draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        particleCtx.fillStyle = this.color;
+        particleCtx.beginPath();
+        particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        particleCtx.fill();
       }
     }
 
@@ -491,8 +557,8 @@
     }
 
     function animateParticles() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particleCtx.fillStyle = "rgba(0, 0, 0, 0.03)";
+      particleCtx.fillRect(0, 0, particleCanvas.width, particleCanvas.height);
       particles.forEach((particle, index) => {
         particle.update();
         particle.draw();
@@ -507,9 +573,69 @@
     initParticles();
     animateParticles();
 
+    // Splash Canvas Flower Animation
+    const splashCanvas = document.getElementById("splashCanvas");
+    const splashCtx = splashCanvas.getContext("2d");
+    splashCanvas.height = window.innerHeight;
+    splashCanvas.width = window.innerWidth;
+
+    const petals = [];
+    const petalCount = 12;
+    const centerX = splashCanvas.width / 2;
+    const centerY = splashCanvas.height / 2;
+
+    class Petal {
+      constructor() {
+        this.angle = Math.random() * Math.PI * 2;
+        this.radius = 0;
+        this.maxRadius = Math.random() * 50 + 50;
+        this.speed = Math.random() * 2 + 1;
+        this.opacity = 1;
+      }
+      update() {
+        this.radius += this.speed;
+        if (this.radius > this.maxRadius) {
+          this.opacity -= 0.02;
+        }
+        if (this.opacity < 0) this.opacity = 0;
+      }
+      draw() {
+        splashCtx.fillStyle = `rgba(0, 212, 255, ${this.opacity})`;
+        splashCtx.beginPath();
+        splashCtx.ellipse(
+          centerX + Math.cos(this.angle) * this.radius,
+          centerY + Math.sin(this.angle) * this.radius,
+          20, 10, this.angle, 0, Math.PI * 2
+        );
+        splashCtx.fill();
+      }
+    }
+
+    function initPetals() {
+      for (let i = 0; i < petalCount; i++) {
+        petals.push(new Petal());
+      }
+    }
+
+    function animatePetals() {
+      splashCtx.clearRect(0, 0, splashCanvas.width, splashCanvas.height);
+      petals.forEach(petal => {
+        petal.update();
+        petal.draw();
+      });
+      if (petals.some(petal => petal.opacity > 0)) {
+        requestAnimationFrame(animatePetals);
+      }
+    }
+
+    initPetals();
+    animatePetals();
+
     window.addEventListener('resize', () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
+      particleCanvas.height = window.innerHeight;
+      particleCanvas.width = window.innerWidth;
+      splashCanvas.height = window.innerHeight;
+      splashCanvas.width = window.innerWidth;
       particles.length = 0;
       initParticles();
     });
