@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LSR Predictor - Secure Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0d0d2b 0%, #1a1a4e 100%);
+      min-height: 100vh;
+      overflow: hidden;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .particle-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.6;
+    }
+
+    /* Splash Screen Styles */
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0d0d2b;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #00eaff;
+      text-shadow: 0 0 20px rgba(0, 234, 255, 0.8);
+      animation: pulse 2s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    .splash-subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.8);
+      animation: fadeIn 2s ease-in;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); text-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
+      50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(0, 234, 255, 1); }
+      100% { transform: scale(1); text-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .container.visible {
+      opacity: 1;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #00eaff;
+      text-shadow: 0 0 10px rgba(0, 234, 255, 0.8);
+      margin-bottom: 1.5rem;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px rgba(0, 234, 255, 0.8); }
+      to { text-shadow: 0 0 20px rgba(0, 234, 255, 1); }
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 30px rgba(0, 234, 255, 0.3);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      margin-bottom: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00eaff;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: #00eaff;
+      color: #0d0d2b;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+    }
+
+    button:hover {
+      background: #00c4d4;
+      box-shadow: 0 0 15px rgba(0, 234, 255, 0.8);
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 2px solid #00eaff;
+      color: #00eaff;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: rgba(0, 234, 255, 0.2);
+    }
+
+    .error {
+      color: #ff4d4d;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .loading {
+      color: #00eaff;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid #00eaff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-width: 90%;
+      width: 350px;
+      text-align: center;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content h3 {
+      font-size: 1.5rem;
+      color: #00eaff;
+      margin-bottom: 1rem;
+    }
+
+    .modal-content p {
+      font-size: 0.9rem;
+      color: #fff;
+      margin-bottom: 1.2rem;
+    }
+
+    @media (max-width: 500px) {
+      .title, .splash-logo {
+        font-size: 1.8rem;
+      }
+      .login-box {
+        padding: 1.5rem;
+        max-width: 90%;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      input, button {
+        font-size: 0.9rem;
+      }
+      .modal-content {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-logo">Welcome to LSR World</div>
+    <div class="splash-subtitle">The Ultimate Predictor Experience</div>
+  </div>
+
+  <canvas id="particleCanvas" class="particle-bg"></canvas>
+  <div class="container" id="mainContainer">
+    <div class="title">LSR Predictor V.4</div>
+    <div class="login-box">
+      <h1>Secure Access</h1>
+      <input type="text" id="accessKey" placeholder="Enter Access Key" onkeypress="handleKeyPress(event)" aria-label="Access Key Input" />
+      <button onclick="handleLogin()" aria-label="Login Button">Login</button>
+      <button class="secondary" onclick="getKey()" aria-label="Get Access Key">Get New Key</button>
+      <div class="loading" id="loading">Ver基本
+
+      <div class="error" id="error"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle">Title</h3>
+      <p id="modalMessage">Message</p>
+      <button id="modalCloseBtn" aria-label="Close">Close</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmQDemn4U_DS-X0natkfk7JHWcOzxupGo",
+      authDomain: "maalsrworld.firebaseapp.com",
+      projectId: "maalsrworld",
+      storageBucket: "maalsrworld.firebasestorage.app",
+      messagingSenderId: "1054235092352",
+      appId: "1:1054235092352:web:2e0cabd4b54c1853ac0d65",
+      measurementId: "G-54BLS5SHF6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const keyDuration = 24 * 60 * 60 * 1000; // 24 hours
+    let isLoggingIn = false;
+
+    // Splash screen handling
+    window.onload = function () {
+      setTimeout(() => {
+        document.getElementById('splashScreen').classList.add('hidden');
+        document.getElementById('mainContainer').classList.add('visible');
+        tryAutoLogin();
+      }, 3000); // Show splash for 3 seconds
+    };
+
+    // Modal functions
+    function showModal(title, message) {
+      const modal = document.getElementById('modal');
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
+      modal.classList.add('active');
+      document.getElementById('modalCloseBtn').onclick = () => {
+        modal.classList.remove('active');
+      };
+    }
+
+    async function tryAutoLogin() {
+      const storedKey = localStorage.getItem("access_key");
+      const errorDiv = document.getElementById("error");
+      const loadingDiv = document.getElementById("loading");
+
+      if (!storedKey) return;
+
+      loadingDiv.style.display = "block";
+      try {
+        const snap = await get(ref(db, `accessKeys/${storedKey}`));
+        loadingDiv.style.display = "none";
+
+        if (!snap.exists()) {
+          localStorage.removeItem("access_key");
+          errorDiv.innerText = "Stored access key not found.";
+          showModal('Key Not Found', 'Your stored access key is invalid. Please get a new one.');
+          return;
+        }
+
+        const data = snap.val();
+        const now = Date.now();
+
+        if (data.expiry && now > data.expiry) {
+          localStorage.removeItem("access_key");
+          errorDiv.innerText = "Stored access key expired.";
+          showModal('Access Expired', 'Your stored access key has expired. Please get a new one.');
+          return;
+        }
+
+        // Update expiry and last login
+        await update(ref(db, `accessKeys/${storedKey}`), {
+          lastLogin: now,
+          expiry: now + keyDuration
+        });
+
+        showModal('Welcome Back', 'Auto-login successful! Redirecting...');
+        setTimeout(() => {
+          window.location.href = "https://devilhackervipseller.github.io/LSR-pvt-World/";
+        }, 1500);
+      } catch (err) {
+        loadingDiv.style.display = "none";
+        localStorage.removeItem("access_key");
+        errorDiv.innerText = `Auto-login failed: ${err.message}`;
+        showModal('Error', 'Failed to auto-login. Please try again or get a new key.');
+      }
+    }
+
+    window.handleLogin = async function () {
+      if (isLoggingIn) return;
+      isLoggingIn = true;
+
+      const key = document.getElementById("accessKey").value.trim();
+      const errorDiv = document.getElementById("error");
+      const loadingDiv = document.getElementById("loading");
+
+      errorDiv.innerText = "";
+      loadingDiv.style.display = "block";
+
+      if (!key) {
+        loadingDiv.style.display = "none";
+        errorDiv.innerText = "Please enter an access key.";
+        isLoggingIn = false;
+        return;
+      }
+
+      try {
+        const snap = await get(ref(db, `accessKeys/${key}`));
+        loadingDiv.style.display = "none";
+
+        if (!snap.exists()) {
+          errorDiv.innerText = "Access key not found.";
+          showModal('Key Not Found', 'The access key is invalid. Please get a new one.');
+          isLoggingIn = false;
+          return;
+        }
+
+        const data = snap.val();
+        const now = Date.now();
+
+        if (data.expiry && now > data.expiry) {
+          errorDiv.innerText = "Access key expired.";
+          showModal('Key Expired', 'This access key has expired. Please get a new one.');
+          isLoggingIn = false;
+          return;
+        }
+
+        // Update lastLogin and expiry
+        await update(ref(db, `accessKeys/${key}`), {
+          lastLogin: now,
+          expiry: now + keyDuration
+        });
+
+        localStorage.setItem("access_key", key);
+        showModal('Success', 'Login successful! Redirecting...');
+        setTimeout(() => {
+          window.location.href = "https://devilhackervipseller.github.io/LSR-pvt-World/";
+        }, 1500);
+      } catch (err) {
+        loadingDiv.style.display = "none";
+        errorDiv.innerText = `Login failed: ${err.message}`;
+        showModal('Error', 'Login failed. Please try again or get a new key.');
+      } finally {
+        isLoggingIn = false;
+      }
+    };
+
+    window.getKey = function () {
+      const message = encodeURIComponent("Hello, I need a new access key for LSR Predictor.");
+      window.open(`https://t.me/Devil_Hacker_Vip?text=${message}`, '_blank');
+    };
+
+    window.handleKeyPress = function (event) {
+      if (event.key === 'Enter') {
+        handleLogin();
+      }
+    };
+  </script>
+
+  <script>
+    const canvas = document.getElementById("particleCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const particleCount = window.innerWidth < 500 ? 50 : 150;
+    const particles = [];
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 1.5 - 0.75;
+        this.speedY = Math.random() * 1.5 - 0.75;
+        this.color = `rgba(0, 234, 255, ${Math.random() * 0.5 + 0.4})`;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.2) this.size -= 0.01;
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+      }
+      draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((particle, index) => {
+        particle.update();
+        particle.draw();
+        if (particle.size <= 0.2) {
+          particles.splice(index, 1);
+          particles.push(new Particle());
+        }
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      particles.length = 0;
+      initParticles();
+    });
+  </script>
+</body>
+</html>
